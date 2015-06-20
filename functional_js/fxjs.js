@@ -124,3 +124,117 @@ module.exports = function arrayMap(arr, fn){
     return memo.concat([fn(elem)]);
   }, []);
 };
+
+
+// FUNCTIONAL SPIES
+function Spy(object, methodName) {
+  // SOLUTION FROM ANOTHER USER
+  if (!(this instanceof Spy)){
+    return new Spy(object, methodName)
+  }
+
+  this.count = 0
+  var originalFn = object[methodName]
+
+  object[methodName] = function secretAgent() {
+    this.count++
+    return originalFn.apply(object, arguments);
+  }.bind(this)
+}
+
+// OFFICIAL SOLUTION
+// function Spy(target, method) {
+//   var originalFunction = target[method]
+
+//   // use an object so we can pass by reference, not value
+//   // i.e. we can return result, but update count from this scope
+//   var result = {
+//     count: 0
+//   }
+
+//   // replace method with spy method
+//   target[method] = function() {
+//     result.count++ // track function was called
+//     return originalFunction.apply(this, arguments) // invoke original function
+//   }
+
+//   return result
+// }
+module.exports = Spy;
+
+
+// BLOCKING EVENT LOOP
+function repeat (operation, num) {
+  if (num <= 0) {
+    return;
+  }
+  operation();
+  setTimeout(function(){
+    return repeat(operation, --num);
+  }, 1);
+  // return repeat(operation, --num);
+}
+module.exports = repeat;
+
+// OFFICIAL ANSWER, SEE HOW IT PICKS 'ARBITRARY' RELEASE POINT
+// function repeat(operation, num) {
+//   if (num <= 0) return
+//   operation()
+//   // release control every 10 or so
+//   // iterations.
+//   // 10 is arbitrary.
+//   if (num % 10 === 0) {
+//     setTimeout(function() {
+//       repeat(operation, --num)
+//     })
+//   } else {
+//     repeat(operation, --num)
+//   }
+// }
+
+
+// TRAMPOLINE
+function repeat(operation, num) {
+  // ** GOT THROUGH THIS USING A GREAT ARTICLE ABOUT TAIL-RECURSION/TRAMPOLINES/THUNKS
+  // http://raganwald.com/2013/03/28/trampolines-in-javascript.html
+
+  // Modify this so it doesn't cause a stack overflow!
+  if (num <= 0) return
+  if (num > 0) {
+    return function() { repeat(operation, --num) };
+  }
+  return function() { operation() };
+}
+
+function trampoline(fn) {
+  var result = fn();
+  while(result instanceof Function){
+    result = result();
+  }
+  return result;
+}
+
+module.exports = function(operation, num) {
+  return trampoline(repeat(operation, num));
+}
+
+// OFFICIAL ANSWER
+// function repeat(operation, num) {
+//   return function() {
+//     if (num <= 0) return
+//     operation()
+//     return repeat(operation, --num)
+//   }
+// }
+
+// function trampoline(fn) {
+//   while(fn && typeof fn === 'function') {
+//     fn = fn()
+//   }
+// }
+
+// module.exports = function(operation, num) {
+//   trampoline(function() {
+//     return repeat(operation, num)
+//   })
+// }
