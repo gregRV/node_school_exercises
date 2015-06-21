@@ -238,3 +238,114 @@ module.exports = function(operation, num) {
 //     return repeat(operation, num)
 //   })
 // }
+
+
+// ASYNC LOOPS
+function loadUsers (userIds, load, done) {
+  return done(userIds.map(function(id){
+    return load(id);
+  }));
+}
+module.exports = loadUsers;
+
+
+// RECURSION
+// function getDependencies (tree, currentDeps) {
+  // if currDeps is undefined, initialize an empty array
+  // if trees keys include 'dependendcies', iterate through collection to build strings
+  // if has dependencies, make recursive call, passing along currentDeps
+  // if tree DOES NOT have 'dependencies', return [String] of key + @ + version
+    // only push if indexOf in currentDeps > -1
+  // return currentDeps
+
+  // COME BACK TO REFACTOR MY SOLUTION //
+  // if(currentDeps === undefined){
+  //   currentDeps = [];
+  // }
+  // console.log("tree", tree);
+
+  // var newTree = tree['dependencies'];
+  // console.log("newTree", newTree);
+
+  // if(newTree){
+  //   for(var dep in newTree){
+  //     if(dep['dependencies']){
+  //       currentDeps.concat(getDependencies(dep['dependencies'], currentDeps));
+  //     } else {
+  //       currentDeps.push(dep + newTree[dep]['version'])
+  //     }
+  //   }
+  // }
+  // // if(currentDeps.indexOf(dep + newTree[dep]['version']) < 0)
+  // // console.log("========= currentDeps", currentDeps);
+  // return currentDeps;
+
+// ANOTHER USER'S SOLUTION
+function getDependencies(mod, result) {
+  result = result || [];
+  var dependencies = mod.dependencies || [];
+  Object.keys(dependencies).forEach(function (dep) {
+    var key = dep + '@' + mod.dependencies[dep].version;
+    if (result.indexOf(key) === -1) {
+      result.push(key);
+    }
+    getDependencies(mod.dependencies[dep], result);
+  });
+  return result.sort();
+}
+module.exports = getDependencies;
+
+
+// CURRYING
+// MY SOLUTION (NOT WORKING)
+// function curryN (fn, n) {
+//   n = n || fn.length;
+//   var args = [];
+
+//   var curryHelper = function(){
+//     args = args.concat(Array.prototype.slice.call(arguments));
+//     if(args.length === n){
+//       return fn.apply(null, args);
+//     } else {
+//       return curryHelper;
+//     }
+//   };
+
+//   return curryHelper();
+
+// OTHER USER SOLUTION
+// function curryN(fn, n) {
+//   // If `n` argument was omitted, use the function .length property.
+//   if (typeof n !== 'number') n = fn.length
+
+//   function getCurriedFn(prev) {
+//     return function(arg) {
+//       // Concat the just-specified argument with the array of
+//       // previously-specified arguments.
+//       var args = prev.concat(arg)
+//       // Not all arguments have been satisfied yet, so return a curried
+//       // version of the original function.
+//       if (args.length < n) return getCurriedFn(args)
+//       // Otherwise, invoke the original function with the arguments and
+//       // return its value.
+//       else return fn.apply(this, args)
+//     };
+//   }
+//   // Return a curried version of the original function.
+//   return getCurriedFn([])
+// }
+// module.exports = curryN;
+
+// OFFICIAL SOLUTION
+function curryN(fn, n) {
+  n = n || fn.length
+  return function curriedN(arg) {
+    if (n <= 1) return fn(arg)
+    return curryN(fn.bind(this, arg), n - 1)
+  }
+}
+module.exports = curryN
+
+
+// FUNCTION CALL
+module.exports = Function.call.bind(Array.prototype.slice);
