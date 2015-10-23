@@ -1,25 +1,25 @@
-// 1.
+// 1. HELLO WORLD
 // console.log("HELLO WORLD");
 
-// 2.
+// 2. BABY STEPS
 // var sum = process.argv.reduce(function(memo, current, idx) {
 //   return idx > 1 ? (memo + +current) : memo;
 // }, 0);
 // console.log(sum);
 
-// 3.
+// 3. MY FIRST I/0!
 // var fs = require('fs');
 // var file = fs.readFileSync(process.argv[2], 'utf8');
 // console.log(file.split('\n').length - 1);
 
-// 4.
+// 4. MY FIRST ASYNC I/0!
 // var fs = require('fs');
 // fs.readFile(process.argv[2], 'utf8', function(err, data){
 //   // console.log(data);
 //   console.log(data.split('\n').length - 1);
 // });
 
-// 5.
+// 5. FILTERED LS
 // var fs = require('fs');
 // fs.readdir(process.argv[2], function(err, data){
 //   data.forEach(function(file){
@@ -30,7 +30,7 @@
 //   });
 // });
 
-// 6.
+// 6. MAKE IT MODULAR
 // var module = require('./module.js');
 // module(process.argv[2], process.argv[3], function(err, data) {
 //   if (err) {
@@ -41,7 +41,7 @@
 //   });
 // });
 
-// 7.
+// 7. HTTP CLIENT
 // var http = require('http');
 // http.get(process.argv[2], function(response){
 //   // passes data as String instead of buffer
@@ -51,7 +51,7 @@
 //   response.on('error', console.error);
 // });
 
-// 8.
+// 8. HTTP COLLECT
 // MY SOLUTION (SHOULD WORK)
 // var http = require('http');
 // http.get(process.argv[2], function(response){
@@ -79,7 +79,7 @@
 //   }))
 // })
 
-// 9.
+// 9. JUGGLING ASYNC
 // MY SOLUTION
 // var http = require('http');
 // var result = [];
@@ -141,4 +141,91 @@
 
 // for (var i = 0; i < 3; i++)
 //   httpGet(i)
+
+// 10. TIME SERVER
+// var net = require('net');
+
+// function zeroFill(i) {
+//   return (i < 10 ? '0' : '') + i
+// }
+
+// function now () {
+//   var d = new Date()
+//   return d.getFullYear() + '-'
+//     + zeroFill(d.getMonth() + 1) + '-'
+//     + zeroFill(d.getDate()) + ' '
+//     + zeroFill(d.getHours()) + ':'
+//     + zeroFill(d.getMinutes())
+// }
+
+// // every connection received by this server triggers another call to the cb.
+// // every call also returns an instance of the server.
+// var server = net.createServer(function(socket) {
+//   var date = new Date();
+//   socket.write(now() + '\n');
+//   socket.end();
+// });
+// server.listen(process.argv[2]);
+
+// 11. HTTP FILE SERVER
+// var http = require('http');
+// var fs = require('fs');
+// var server = http.createServer(function(req, res) {
+//   res.writeHead(200, { 'content-type': 'text/plain' })
+//   fs.createReadStream(process.argv[3]).pipe(res)
+// });
+// server.listen(process.argv[2]);
+
+// 12. HTTP UPPERCASERER
+// var http = require('http');
+// var map = require('through2-map')
+// var server = http.createServer(function(req, res) {
+//   if (req.method != 'POST') {
+//     return res.end('send me a POST\n');
+//   }
+//   req.pipe(map(function (chunk) {
+//     return chunk.toString().toUpperCase()
+//   })).pipe(res)
+// });
+// server.listen(process.argv[2]);
+
+// 13. HTTP JSON API SERVER
+// THEIR SOLUTION
+var http = require('http')
+var url = require('url')
+
+function parsetime (time) {
+  return {
+    hour: time.getHours(),
+    minute: time.getMinutes(),
+    second: time.getSeconds()
+  }
+}
+
+function unixtime (time) {
+  return { unixtime : time.getTime() }
+}
+
+var server = http.createServer(function (req, res) {
+  var parsedUrl = url.parse(req.url, true)
+  var time = new Date(parsedUrl.query.iso)
+  var result
+
+  if (/^\/api\/parsetime/.test(req.url))
+    result = parsetime(time)
+  else if (/^\/api\/unixtime/.test(req.url))
+    result = unixtime(time)
+
+  if (result) {
+    res.writeHead(200, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify(result))
+  } else {
+    res.writeHead(404)
+    res.end()
+  }
+})
+server.listen(Number(process.argv[2]))
+
+
+
 
