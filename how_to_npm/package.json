@@ -1,0 +1,13 @@
+{
+  "name": "@gregrv/how_to_npm",
+  "version": "1.0.0",
+  "description": "nodeschool npm demo",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+  }
+}
